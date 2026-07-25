@@ -20,6 +20,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
         <div className="foot">
           <div className="who">{s.callsign}</div>
           <div className="rank">{s.rankTitle}</div>
+          {s.title && <div className="rank" style={{ color: "var(--gold)" }}>❖ {s.title}</div>}
           <form action={signOut} style={{ marginTop: ".6rem" }}>
             <button className="btn small">Sign out</button>
           </form>

@@ -1,7 +1,7 @@
 import Fleuron from "@/components/Fleuron";
 import { requireSession } from "@/lib/auth";
 import { supaServer } from "@/lib/supabase/server";
-import { setRank, setCap } from "./actions";
+import { setRank, setCap, setTitle } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ export default async function Roster() {
   const supabase = await supaServer();
 
   const [{ data: members }, { data: ranks }, { data: caps }, { data: overrides }] = await Promise.all([
-    supabase.from("members").select("id, callsign, sl_username, avatar_key, rank, active, joined_at, ranks(title, sort)").order("callsign"),
+    supabase.from("members").select("id, callsign, sl_username, avatar_key, rank, title, active, joined_at, ranks(title, sort)").order("callsign"),
     supabase.from("ranks").select("id, title, sort").order("sort"),
     supabase.from("capabilities").select("id, label"),
     canManage ? supabase.from("member_capabilities").select("member_id, cap, granted") : Promise.resolve({ data: [] as { member_id: string; cap: string; granted: boolean }[] }),
@@ -37,7 +37,7 @@ export default async function Roster() {
             return (
               <tr key={m.id}>
                 <td>
-                  {m.callsign} {!m.active && <span className="badge">inactive</span>}
+                  {m.callsign} {m.title && <span className="badge gold">{m.title}</span>} {!m.active && <span className="badge">inactive</span>}
                   {m.sl_username && <div className="small muted">{m.sl_username}</div>}
                 </td>
                 <td>
@@ -77,6 +77,12 @@ export default async function Roster() {
                           <option value="grant">Grant</option><option value="revoke">Revoke</option>
                         </select>
                         <button className="btn small tight">Apply</button>
+                      </form>
+                      <form action={setTitle} className="row" style={{ marginTop: ".4rem", gap: ".4rem" }}>
+                        <input type="hidden" name="member_id" value={m.id} />
+                        <input type="text" name="title" defaultValue={m.title ?? ""} maxLength={30}
+                          placeholder="Honorific title" style={{ maxWidth: 180 }} />
+                        <button className="btn small tight">Set title</button>
                       </form>
                     </details>
                   </td>

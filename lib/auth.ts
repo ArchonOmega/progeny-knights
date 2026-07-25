@@ -6,6 +6,7 @@ export type Session = {
   callsign: string;
   rank: string;
   rankTitle: string;
+  title: string | null;      // honorific, e.g. "Architect"
   caps: Set<string>;
 };
 
@@ -15,7 +16,7 @@ export async function getSession(): Promise<Session | null> {
   if (!user) return null;
 
   const [{ data: member }, { data: caps }] = await Promise.all([
-    supabase.from("members").select("callsign, rank, ranks(title)").eq("id", user.id).single(),
+    supabase.from("members").select("callsign, rank, title, ranks(title)").eq("id", user.id).single(),
     supabase.rpc("my_caps"),
   ]);
   if (!member) return null;
@@ -26,6 +27,7 @@ export async function getSession(): Promise<Session | null> {
     callsign: member.callsign,
     rank: member.rank,
     rankTitle: rankRow?.title ?? member.rank,
+    title: member.title ?? null,
     caps: new Set<string>((caps as string[]) ?? []),
   };
 }

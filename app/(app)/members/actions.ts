@@ -28,3 +28,11 @@ export async function setCap(formData: FormData) {
   }
   revalidatePath("/members");
 }
+
+export async function setTitle(formData: FormData) {
+  const supabase = await supaServer();
+  await supabase.from("members")
+    .update({ title: String(formData.get("title") || "").trim() || null })
+    .eq("id", String(formData.get("member_id")));
+  revalidatePath("/members");
+}
