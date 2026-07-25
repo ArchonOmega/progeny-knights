@@ -17,7 +17,7 @@ A complete web + in-world system for a Second Life knightly order:
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Open **SQL Editor**, paste the entire contents of `supabase/migrations/0001_init.sql`, and run it. This creates every table, the permission system, the recurrence engine, RLS policies, and starter Codex pages.
-3. **Authentication → Providers → Email**: decide whether to require email confirmation. For a private guild site, turning confirmation *off* is simplest.
+3. **Authentication → Providers → Email**: turn **"Confirm email" OFF**. This is required — knights sign in with their **Second Life username + password** (no email involved; the system uses hidden internal addresses that can't receive mail). Forgotten passwords are reset by an admin in the Supabase dashboard (Authentication → Users).
 4. **Project Settings → API**: copy the *URL*, *anon* key, and *service_role* key.
 
 ### Crown the first Commander

@@ -15,11 +15,12 @@ export default async function Login({
 
       {joining ? (
         <form action={signUp}>
-          <label className="fld"><span>Callsign · your name in the Order</span>
-            <input name="callsign" type="text" required maxLength={40} placeholder="Seraphine Duskbane" />
+          <label className="fld"><span>Second Life username</span>
+            <input name="username" type="text" required maxLength={63}
+              placeholder="darkblade  ·  or  john.smith" autoComplete="username" />
           </label>
-          <label className="fld"><span>Email</span>
-            <input name="email" type="email" required autoComplete="email" />
+          <label className="fld"><span>Callsign — your name in the Order (optional)</span>
+            <input name="callsign" type="text" maxLength={40} placeholder="Defaults to your SL name" />
           </label>
           <label className="fld"><span>Password</span>
             <input name="password" type="password" required minLength={8} autoComplete="new-password" />
@@ -29,8 +30,9 @@ export default async function Login({
         </form>
       ) : (
         <form action={signIn}>
-          <label className="fld"><span>Email</span>
-            <input name="email" type="email" required autoComplete="email" />
+          <label className="fld"><span>Second Life username</span>
+            <input name="username" type="text" required maxLength={63}
+              placeholder="darkblade" autoComplete="username" />
           </label>
           <label className="fld"><span>Password</span>
             <input name="password" type="password" required autoComplete="current-password" />
