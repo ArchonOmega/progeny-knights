@@ -1,7 +1,7 @@
 import Fleuron from "@/components/Fleuron";
 import { requireSession } from "@/lib/auth";
 import { supaServer } from "@/lib/supabase/server";
-import { setRank, setCap, setTitle } from "./actions";
+import { setRank, setCap, setTitle, setActive } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +84,15 @@ export default async function Roster() {
                           placeholder="Honorific title" style={{ maxWidth: 180 }} />
                         <button className="btn small tight">Set title</button>
                       </form>
+                      {m.id !== s.userId && (
+                        <form action={setActive} style={{ marginTop: ".4rem" }}>
+                          <input type="hidden" name="member_id" value={m.id} />
+                          <input type="hidden" name="active" value={m.active ? "false" : "true"} />
+                          <button className="btn small tight">
+                            {m.active ? "Deactivate member" : "Restore member"}
+                          </button>
+                        </form>
+                      )}
                     </details>
                   </td>
                 )}

@@ -36,3 +36,18 @@ export async function setTitle(formData: FormData) {
     .eq("id", String(formData.get("member_id")));
   revalidatePath("/members");
 }
+
+export async function setActive(formData: FormData) {
+  const s = await requireSession();
+  const target = String(formData.get("member_id"));
+  if (target === s.userId) return; // no self-deactivation
+  const supabase = await supaServer();
+  await supabase.from("members")
+    .update({ active: String(formData.get("active")) === "true" })
+    .eq("id", target);
+  await supabase.rpc("log_action", {
+    p_actor: s.userId, p_action: "member.active", p_entity: "member",
+    p_entity_id: target, p_detail: { active: String(formData.get("active")) === "true" },
+  });
+  revalidatePath("/members");
+}
