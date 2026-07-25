@@ -1,0 +1,236 @@
+/* ═══ PROGENY KNIGHTS · design system ═══
+   Elegant vampire court: bone parchment on warm near-black,
+   deep blood crimson, aged gold. Cinzel / EB Garamond / Alegreya Sans. */
+
+:root {
+  --night:    #0C0910;   /* page */
+  --crypt:    #120D17;   /* sidebar, wells */
+  --panel:    #191221;   /* cards */
+  --panel-hi: #201829;
+  --stone:    #2C2136;   /* borders */
+  --stone-hi: #3E3050;
+  --blood:    #7E1B2B;
+  --blood-hi: #A93247;
+  --gold:     #C6A15B;
+  --gold-dim: #6E5C3B;
+  --bone:     #EAE2D3;   /* primary text */
+  --ash:      #9A8CA8;   /* muted text, violet cast */
+  --glow: 0 0 0 1px rgba(198,161,91,.35), 0 0 18px rgba(169,50,71,.25);
+
+  --display: "Cinzel", serif;
+  --body:    "Alegreya Sans", system-ui, sans-serif;
+  --reading: "EB Garamond", Georgia, serif;
+  --sc:      "Alegreya Sans SC", var(--body);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--night);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(126,27,43,.12), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 110%, rgba(198,161,91,.05), transparent);
+  background-attachment: fixed;
+  color: var(--bone);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 600; color: var(--bone); letter-spacing: .04em; }
+h1 { font-size: 1.7rem; margin: 0; }
+h2 { font-size: 1.15rem; margin: 1.6rem 0 .6rem; }
+a  { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--bone); }
+::selection { background: var(--blood); color: var(--bone); }
+
+:focus-visible { outline: none; box-shadow: var(--glow); border-radius: 3px; }
+
+/* ── Shell ─────────────────────────────────────────────── */
+.shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 232px; flex-shrink: 0;
+  background: var(--crypt);
+  border-right: 1px solid var(--stone);
+  display: flex; flex-direction: column;
+  padding: 1.4rem 0;
+  position: sticky; top: 0; height: 100vh;
+}
+.sidebar .brand {
+  display: flex; flex-direction: column; align-items: center; gap: .55rem;
+  padding: 0 1rem 1.1rem; text-align: center;
+}
+.sidebar .brand .name {
+  font-family: var(--display); font-weight: 700; font-size: .95rem;
+  letter-spacing: .22em; color: var(--gold); text-transform: uppercase;
+}
+.nav { display: flex; flex-direction: column; margin-top: .4rem; flex: 1; }
+.nav a {
+  font-family: var(--sc); font-weight: 500; font-size: .92rem;
+  letter-spacing: .12em; color: var(--ash);
+  padding: .62rem 1.4rem; border-left: 3px solid transparent;
+  transition: color .15s, background .15s;
+}
+.nav a:hover { color: var(--bone); background: rgba(198,161,91,.05); }
+.nav a.active {
+  color: var(--gold); border-left-color: var(--gold);
+  background: linear-gradient(90deg, rgba(126,27,43,.28), transparent 70%);
+}
+.sidebar .foot {
+  padding: 1rem 1.4rem 0; border-top: 1px solid var(--stone);
+  font-size: .85rem; color: var(--ash);
+}
+.sidebar .foot .who { color: var(--bone); font-weight: 500; }
+.sidebar .foot .rank { font-family: var(--sc); letter-spacing: .1em; font-size: .78rem; color: var(--gold-dim); }
+
+.main { flex: 1; padding: 2.2rem 2.6rem 4rem; max-width: 1060px; }
+
+/* ── Fleuron divider (signature) ───────────────────────── */
+.fleuron {
+  display: flex; align-items: center; gap: .8rem;
+  margin: .5rem 0 1.6rem; color: var(--gold-dim);
+}
+.fleuron::before, .fleuron::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim));
+}
+.fleuron::after { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+.fleuron span { font-size: .8rem; letter-spacing: .1em; }
+
+.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.page-head .sub { color: var(--ash); font-size: .95rem; }
+
+/* ── Cards & tables ────────────────────────────────────── */
+.card {
+  background: var(--panel); border: 1px solid var(--stone);
+  border-radius: 6px; padding: 1.1rem 1.3rem; margin-bottom: 1rem;
+}
+.card.hover:hover { border-color: var(--stone-hi); background: var(--panel-hi); }
+
+table.ledger { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.ledger th {
+  font-family: var(--sc); font-weight: 500; font-size: .78rem;
+  letter-spacing: .14em; color: var(--gold-dim); text-align: left;
+  padding: .5rem .8rem; border-bottom: 1px solid var(--stone);
+}
+.ledger th a { color: inherit; }
+.ledger th a:hover, .ledger th a.on { color: var(--gold); }
+.ledger td { padding: .62rem .8rem; border-bottom: 1px solid rgba(44,33,54,.6); vertical-align: top; }
+.ledger tr:hover td { background: rgba(198,161,91,.03); }
+
+.badge {
+  display: inline-block; font-family: var(--sc); font-size: .72rem;
+  letter-spacing: .12em; padding: .1rem .55rem; border-radius: 3px;
+  border: 1px solid var(--stone-hi); color: var(--ash); white-space: nowrap;
+}
+.badge.blood { border-color: var(--blood); color: var(--blood-hi); }
+.badge.gold  { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ── Forms ─────────────────────────────────────────────── */
+label.fld { display: block; margin-bottom: .9rem; }
+label.fld > span {
+  display: block; font-family: var(--sc); font-size: .78rem;
+  letter-spacing: .14em; color: var(--gold-dim); margin-bottom: .3rem;
+}
+input[type="text"], input[type="email"], input[type="password"], input[type="date"],
+input[type="datetime-local"], input[type="number"], input[type="search"],
+select, textarea {
+  width: 100%; background: var(--crypt); color: var(--bone);
+  border: 1px solid var(--stone); border-radius: 4px;
+  padding: .55rem .7rem; font-family: var(--body); font-size: .95rem;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold-dim); box-shadow: var(--glow); }
+input::placeholder, textarea::placeholder { color: rgba(154,140,168,.55); }
+input[type="date"], input[type="datetime-local"] { color-scheme: dark; }
+select option { background: var(--crypt); }
+
+textarea.script {
+  font-family: var(--reading); font-size: 1.08rem; line-height: 1.7;
+  min-height: 380px; resize: vertical; padding: 1rem 1.1rem;
+}
+
+.btn {
+  display: inline-block; cursor: pointer; border-radius: 4px;
+  font-family: var(--sc); font-weight: 700; font-size: .88rem; letter-spacing: .14em;
+  padding: .55rem 1.3rem; border: 1px solid var(--stone-hi);
+  background: transparent; color: var(--ash);
+  transition: all .15s;
+}
+.btn:hover { color: var(--bone); border-color: var(--gold-dim); }
+.btn.primary {
+  background: linear-gradient(180deg, var(--blood-hi), var(--blood));
+  border-color: var(--blood-hi); color: var(--bone);
+}
+.btn.primary:hover { box-shadow: 0 0 16px rgba(169,50,71,.4); }
+.btn.gold { border-color: var(--gold-dim); color: var(--gold); }
+.btn.gold:hover { border-color: var(--gold); box-shadow: 0 0 14px rgba(198,161,91,.25); }
+.btn.small { padding: .3rem .8rem; font-size: .78rem; }
+.btn:disabled { opacity: .45; cursor: default; }
+
+.row { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 150px; }
+.row > .tight { flex: 0 0 auto; min-width: 0; }
+
+/* ── Reading (documents, wiki) ─────────────────────────── */
+.parchment { font-family: var(--reading); font-size: 1.12rem; line-height: 1.75; max-width: 46rem; }
+.parchment h1, .parchment h2, .parchment h3 { font-family: var(--display); }
+.parchment h1 { font-size: 1.5rem; } .parchment h2 { font-size: 1.2rem; }
+.parchment blockquote { border-left: 2px solid var(--blood); margin: 1rem 0; padding: .2rem 1rem; color: var(--ash); }
+.parchment code { background: var(--crypt); border: 1px solid var(--stone); border-radius: 3px; padding: .1em .35em; font-size: .85em; }
+.parchment table { border-collapse: collapse; }
+.parchment th, .parchment td { border: 1px solid var(--stone); padding: .35rem .7rem; }
+.parchment th { font-family: var(--sc); letter-spacing: .1em; font-size: .85rem; color: var(--gold); }
+.parchment pre { white-space: pre-wrap; }
+.parchment hr { border: none; border-top: 1px solid var(--stone); }
+
+/* ── Login rite ────────────────────────────────────────── */
+.rite {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 2rem;
+}
+.rite .seal-wrap { filter: drop-shadow(0 0 24px rgba(169,50,71,.35)); }
+@media (prefers-reduced-motion: no-preference) {
+  .rite .seal-wrap { animation: emberglow 5s ease-in-out infinite; }
+  @keyframes emberglow {
+    0%, 100% { filter: drop-shadow(0 0 18px rgba(169,50,71,.28)); }
+    50%      { filter: drop-shadow(0 0 30px rgba(198,161,91,.30)); }
+  }
+}
+.rite h1 {
+  font-size: 1.6rem; font-weight: 700; letter-spacing: .3em;
+  text-transform: uppercase; margin: 1.4rem 0 .2rem; text-align: center;
+}
+.rite .motto { font-family: var(--reading); font-style: italic; color: var(--ash); margin-bottom: 2rem; }
+.rite form { width: 100%; max-width: 340px; }
+.rite .err { color: var(--blood-hi); font-size: .9rem; margin-top: .6rem; text-align: center; }
+.rite .alt { margin-top: 1.2rem; text-align: center; font-size: .9rem; color: var(--ash); }
+
+/* ── Bits ──────────────────────────────────────────────── */
+.muted { color: var(--ash); }
+.small { font-size: .85rem; }
+.mono  { font-family: ui-monospace, monospace; }
+.gap   { height: 1.4rem; }
+.empty {
+  text-align: center; color: var(--ash); font-family: var(--reading);
+  font-style: italic; padding: 2.4rem 1rem;
+}
+.linkcode {
+  font-family: ui-monospace, monospace; font-size: 2.2rem; letter-spacing: .35em;
+  color: var(--gold); text-align: center; padding: 1rem;
+  border: 1px dashed var(--gold-dim); border-radius: 6px; margin: 1rem 0;
+}
+.tag-kind { color: var(--blood-hi); font-family: var(--sc); font-size: .78rem; letter-spacing: .14em; }
+
+@media (max-width: 820px) {
+  .shell { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; padding: .6rem; }
+  .sidebar .brand { flex-direction: row; padding: 0 .6rem; }
+  .sidebar .brand svg { width: 34px; height: 34px; }
+  .nav { flex-direction: row; flex-wrap: wrap; margin: 0; }
+  .nav a { padding: .45rem .7rem; border-left: none; border-bottom: 2px solid transparent; }
+  .nav a.active { border-left: none; border-bottom-color: var(--gold); background: none; }
+  .sidebar .foot { border-top: none; padding: 0 .8rem; margin-left: auto; }
+  .main { padding: 1.4rem 1.1rem 3rem; }
+}
