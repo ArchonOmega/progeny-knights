@@ -19,7 +19,7 @@ export default async function Login({
             <input name="username" type="text" required maxLength={63}
               placeholder="darkblade  ·  or  john.smith" autoComplete="username" />
           </label>
-          <label className="fld"><span>Callsign — your name in the Order (optional)</span>
+          <label className="fld"><span>Callsign: your name in the Order (optional)</span>
             <input name="callsign" type="text" maxLength={40} placeholder="Defaults to your SL name" />
           </label>
           <label className="fld"><span>Password</span>

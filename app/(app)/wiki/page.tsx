@@ -7,7 +7,7 @@ import { createPage } from "./actions";
 export const dynamic = "force-dynamic";
 
 const SECTIONS: [string, string, string][] = [
-  ["guide", "The Guide", "The path from first night to knighting — read in order."],
+  ["guide", "The Guide", "The path from first night to knighting. Read in order."],
   ["knowledge", "Knowledge Base", "Quick answers for the working knight."],
   ["wiki", "Chronicles", "Lore, records, and everything else worth keeping."],
 ];

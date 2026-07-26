@@ -42,7 +42,7 @@ export default function EventForm({ action }: { action: (fd: FormData) => Promis
         </label>
         <label className="fld"><span>Repeats</span>
           <select name="recur_freq" value={freq} onChange={(e) => setFreq(e.target.value)}>
-            <option value="">Never — one night only</option>
+            <option value="">Never (one night only)</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
           </select>

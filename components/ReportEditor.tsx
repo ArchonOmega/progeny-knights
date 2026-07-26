@@ -32,7 +32,7 @@ export default function ReportEditor({
       </div>
 
       {type !== "duty_report" && (
-        <label className="fld"><span>Title (optional — leave blank for the standard form)</span>
+        <label className="fld"><span>Title (optional; leave blank for the standard form)</span>
           <input type="text" name="title" value={custom} onChange={(e) => setCustom(e.target.value)} maxLength={120} />
         </label>
       )}

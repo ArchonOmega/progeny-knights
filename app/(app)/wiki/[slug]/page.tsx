@@ -40,7 +40,7 @@ export default async function WikiPage({
           <label className="fld"><span>Title</span>
             <input name="title" type="text" defaultValue={p.title} required maxLength={80} />
           </label>
-          <label className="fld"><span>Body — Markdown</span>
+          <label className="fld"><span>Body (Markdown)</span>
             <textarea className="script mono" name="body" defaultValue={p.body} style={{ fontFamily: "ui-monospace, monospace", fontSize: ".92rem" }} />
           </label>
           <button className="btn primary">Save page</button>{" "}
