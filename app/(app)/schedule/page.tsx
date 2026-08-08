@@ -1,32 +1,55 @@
 import Link from "next/link";
 import Fleuron from "@/components/Fleuron";
+import MonthCalendar from "@/components/MonthCalendar";
+import OccurrenceCard from "@/components/OccurrenceCard";
 import { requireSession } from "@/lib/auth";
 import { supaServer } from "@/lib/supabase/server";
-import { fmtSLT, EVENT_KINDS } from "@/lib/format";
-import { reportForDuty, standDown, cancelOccurrence } from "./actions";
+import {
+  type EventRole,
+  type ScheduleOccurrence,
+  calendarDays,
+  calendarMonthLabel,
+  calendarQueryBounds,
+  currentSLMonth,
+  monthKey,
+  parseMonth,
+  shiftMonth,
+} from "@/lib/schedule";
 
 export const dynamic = "force-dynamic";
 
-type Occ = {
-  id: string; starts_at: string; canceled: boolean;
-  events: { title: string; kind: string; description: string | null; location: string | null; slurl: string | null };
-  signups: { member_id: string; note: string | null; members: { callsign: string }; event_roles: { label: string } }[];
-};
+type ScheduleParams = Promise<{ view?: string; month?: string; e?: string }>;
 
-export default async function Schedule() {
-  const s = await requireSession();
+export default async function Schedule({ searchParams }: { searchParams: ScheduleParams }) {
+  const [s, params] = await Promise.all([requireSession(), searchParams]);
   const supabase = await supaServer();
+  const view = params.view === "agenda" ? "agenda" : "calendar";
+  const { year, monthIndex } = parseMonth(params.month);
+  const days = calendarDays(year, monthIndex);
+  const bounds = calendarQueryBounds(days);
 
-  const [{ data: occs }, { data: roles }] = await Promise.all([
-    supabase.from("occurrences")
-      .select("id, starts_at, canceled, events(title, kind, description, location, slurl), signups(member_id, note, members(callsign), event_roles(label))")
-      .gte("starts_at", new Date().toISOString())
-      .eq("canceled", false)
-      .order("starts_at").limit(20),
+  let occurrenceQuery = supabase.from("occurrences")
+    .select("id, starts_at, ends_at, canceled, events(title, kind, description, location, slurl), signups(member_id, note, members(callsign), event_roles(label))")
+    .eq("canceled", false)
+    .order("starts_at");
+
+  occurrenceQuery = view === "calendar"
+    ? occurrenceQuery.gte("starts_at", bounds.start).lt("starts_at", bounds.end).limit(200)
+    : occurrenceQuery.gte("starts_at", new Date().toISOString()).limit(50);
+
+  const [{ data: occurrenceData, error: occurrenceError }, { data: roleData, error: roleError }] = await Promise.all([
+    occurrenceQuery,
     supabase.from("event_roles").select("id, label").order("sort"),
   ]);
 
-  const list = (occs ?? []) as unknown as Occ[];
+  if (occurrenceError) throw new Error(`Could not load the schedule: ${occurrenceError.message}`);
+  if (roleError) throw new Error(`Could not load duty roles: ${roleError.message}`);
+
+  const occurrences = (occurrenceData ?? []) as unknown as ScheduleOccurrence[];
+  const roles = (roleData ?? []) as EventRole[];
+  const previous = shiftMonth(year, monthIndex, -1);
+  const next = shiftMonth(year, monthIndex, 1);
+  const current = currentSLMonth();
 
   return (
     <>
@@ -34,69 +57,44 @@ export default async function Schedule() {
         <h1>The Schedule</h1>
         {s.caps.has("schedule.manage") && <Link className="btn gold" href="/schedule/new">Decree an event</Link>}
       </div>
-      <p className="sub muted">All times shown in SLT.</p>
+      <p className="sub muted">Plan the Order&apos;s duties, RSVP, and see who will stand beside you. All times are shown in SLT.</p>
       <Fleuron label="Duties of the Order" />
 
-      {!list.length && <p className="empty">Nothing is decreed. Enjoy the stillness while it lasts.</p>}
+      {params.e && <p className="notice error" role="alert">{params.e}</p>}
 
-      {list.map((o) => {
-        const mine = o.signups.find((x) => x.member_id === s.userId);
-        return (
-          <div className="card" key={o.id}>
-            <span className="tag-kind">{EVENT_KINDS[o.events.kind] ?? o.events.kind}</span>
-            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: ".4rem" }}>
-              <strong style={{ fontSize: "1.05rem" }}>{o.events.title}</strong>
-              <span className="muted">{fmtSLT(o.starts_at)}</span>
-            </div>
-            {o.events.location && (
-              <div className="small muted">
-                {o.events.slurl ? <a href={o.events.slurl}>{o.events.location}</a> : o.events.location}
-              </div>
-            )}
-            {o.events.description && <p className="small" style={{ margin: ".4rem 0" }}>{o.events.description}</p>}
-
-            {o.signups.length > 0 && (
-              <p className="small" style={{ margin: ".5rem 0" }}>
-                <span className="muted">Standing duty: </span>
-                {o.signups.map((x, i) => (
-                  <span key={x.member_id}>
-                    {i > 0 && ", "}
-                    {x.members.callsign} <span className="muted">({x.event_roles.label})</span>
-                  </span>
-                ))}
-              </p>
-            )}
-
-            {s.caps.has("schedule.signup") && (
-              mine ? (
-                <form action={standDown} className="row">
-                  <input type="hidden" name="occurrence_id" value={o.id} />
-                  <span className="small tight" style={{ color: "var(--gold)" }}>
-                    You stand as {o.signups.find((x) => x.member_id === s.userId)?.event_roles.label}.
-                  </span>
-                  <button className="btn small tight">Stand down</button>
-                </form>
-              ) : (
-                <form action={reportForDuty} className="row">
-                  <input type="hidden" name="occurrence_id" value={o.id} />
-                  <select name="role_id" defaultValue="sb" className="tight" style={{ width: "auto" }} aria-label="Role">
-                    {roles?.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
-                  </select>
-                  <input type="text" name="note" placeholder="Note (optional)" style={{ maxWidth: 220 }} />
-                  <button className="btn primary small tight">Report for duty</button>
-                </form>
-              )
-            )}
-
-            {s.caps.has("schedule.manage") && (
-              <form action={cancelOccurrence} style={{ marginTop: ".5rem" }}>
-                <input type="hidden" name="id" value={o.id} />
-                <button className="btn small">Cancel this occurrence</button>
-              </form>
-            )}
+      <div className="schedule-toolbar" aria-label="Schedule controls">
+        <div className="schedule-views">
+          <Link className={`btn small${view === "calendar" ? " active" : ""}`} href={`/schedule?view=calendar&month=${monthKey(year, monthIndex)}`}>Calendar</Link>
+          <Link className={`btn small${view === "agenda" ? " active" : ""}`} href="/schedule?view=agenda">Agenda</Link>
+        </div>
+        {view === "calendar" && (
+          <div className="month-controls">
+            <Link className="btn small" aria-label="Previous month" href={`/schedule?view=calendar&month=${monthKey(previous.year, previous.monthIndex)}`}>‹</Link>
+            <Link className="btn small" href={`/schedule?view=calendar&month=${monthKey(current.year, current.monthIndex)}`}>Today</Link>
+            <Link className="btn small" aria-label="Next month" href={`/schedule?view=calendar&month=${monthKey(next.year, next.monthIndex)}`}>›</Link>
           </div>
-        );
-      })}
+        )}
+        <strong className="schedule-period">{view === "calendar" ? calendarMonthLabel(year, monthIndex) : "Upcoming duties"}</strong>
+      </div>
+
+      {view === "calendar" && <MonthCalendar days={days} occurrences={occurrences} />}
+
+      <div className="schedule-details-head">
+        <h2>{view === "calendar" ? "Event details & attendance" : "Upcoming duties"}</h2>
+        <span className="muted small">{occurrences.length} {occurrences.length === 1 ? "occurrence" : "occurrences"}</span>
+      </div>
+
+      {!occurrences.length && <p className="empty">Nothing is decreed. Enjoy the stillness while it lasts.</p>}
+      {occurrences.map((occurrence) => (
+        <OccurrenceCard
+          key={occurrence.id}
+          occurrence={occurrence}
+          roles={roles}
+          userId={s.userId}
+          canSignup={s.caps.has("schedule.signup")}
+          canManage={s.caps.has("schedule.manage")}
+        />
+      ))}
     </>
   );
 }

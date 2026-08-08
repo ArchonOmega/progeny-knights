@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const items = (mm: boolean) => [
   { href: "/dashboard", label: "The Hall" },
   { href: "/schedule",  label: "Schedule" },
+  { href: "/gallery",   label: "Gallery" },
   { href: "/archive",   label: "Archive" },
   { href: "/wiki",      label: "Codex" },
   { href: "/members",   label: "Roster" },
