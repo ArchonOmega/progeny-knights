@@ -6,22 +6,26 @@ import { revalidatePath } from "next/cache";
 
 export async function reportForDuty(formData: FormData) {
   const s = await requireSession();
+  if (!s.caps.has("schedule.signup")) redirect("/schedule?e=You do not have permission to sign up for duties.");
   const supabase = await supaServer();
-  await supabase.from("signups").upsert({
+  const { error } = await supabase.from("signups").upsert({
     occurrence_id: String(formData.get("occurrence_id")),
     member_id: s.userId,
     role_id: String(formData.get("role_id") || "sb"),
-    note: String(formData.get("note") || "") || null,
+    note: String(formData.get("note") || "").trim().slice(0, 200) || null,
   });
+  if (error) redirect("/schedule?e=" + encodeURIComponent(error.message));
   revalidatePath("/schedule");
 }
 
 export async function standDown(formData: FormData) {
   const s = await requireSession();
+  if (!s.caps.has("schedule.signup")) redirect("/schedule?e=You do not have permission to change attendance.");
   const supabase = await supaServer();
-  await supabase.from("signups").delete()
+  const { error } = await supabase.from("signups").delete()
     .eq("occurrence_id", String(formData.get("occurrence_id")))
     .eq("member_id", s.userId);
+  if (error) redirect("/schedule?e=" + encodeURIComponent(error.message));
   revalidatePath("/schedule");
 }
 
@@ -53,8 +57,11 @@ export async function createEvent(formData: FormData) {
 }
 
 export async function cancelOccurrence(formData: FormData) {
+  const s = await requireSession();
+  if (!s.caps.has("schedule.manage")) redirect("/schedule?e=You do not have permission to cancel occurrences.");
   const supabase = await supaServer();
-  await supabase.from("occurrences").update({ canceled: true })
+  const { error } = await supabase.from("occurrences").update({ canceled: true })
     .eq("id", String(formData.get("id")));
+  if (error) redirect("/schedule?e=" + encodeURIComponent(error.message));
   revalidatePath("/schedule");
 }
